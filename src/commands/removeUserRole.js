@@ -20,29 +20,34 @@ const roleId = "1158723989867335710";
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("novo")
-    .setDescription("Adicionar cargo de moderador")
+    .setName("remove")
+    .setDescription("Remover cargo de moderador")
     .addStringOption((option) =>
       option
-        .setName("input")
-        .setDescription("Digite o nome do usuário a ter o cargo de moderador")
+        .setName("nome")
+        .setDescription(
+          "Digite o nome do usuário a remover o cargo de moderador"
+        )
     ),
   async execute(interaction) {
-    const input = interaction.options.getString("input");
+    const nome = interaction.options.getString("nome");
     const guild = client.guilds.cache.get(guildId);
     const role = guild.roles.cache.get(roleId);
 
     const member = guild.members.cache.find(
-      (member) => member.nickname === input || member.user.username === input
+      (member) => member.nickname === nome || member.user.username === nome
     );
     if (!member) {
-      return message.channel.send("Usuário não encontrado.");
+      return interaction.reply("Usuário não encontrado.");
     }
     member.roles
-      .add(role)
-      .then(() =>
-        console.log(`Cargo atribuído com sucesso ao membro ${member.user.tag}.`)
-      )
-      .catch((error) => console.error("Erro ao atribuir o cargo:", error));
+      .remove(role)
+      .then(() => {
+        interaction.reply(
+          `Cargo removido com sucesso do membro ${member.user.tag}.`
+        );
+        member.send("Agora você é moderador");
+      })
+      .catch((error) => interaction.reply("Erro ao remover o cargo:", error));
   },
 };
